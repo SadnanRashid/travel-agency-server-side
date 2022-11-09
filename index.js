@@ -4,6 +4,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 app.use(cors());
 const port = process.env.PORT || 4000;
+app.use(express.json());
 //
 
 app.listen(port, () => {
@@ -19,6 +20,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 const servicesCol = client.db("services").collection("services");
+const reviewCol = client.db("services").collection("reviews");
 //
 
 app.get("/", async (req, res) => {
@@ -39,6 +41,21 @@ app.get("/services/:id", async (req, res) => {
   const specificService = await servicesCol.findOne(query);
   res.send(specificService);
 });
+// add review to database
+app.post("/review", async (req, res) => {
+  const { email, photo, name, rating, review, serviceID } = req.body;
+  console.log(serviceID);
+  const result = await reviewCol.insertOne({
+    email: email,
+    photo: photo,
+    serviceID: serviceID,
+    name: name,
+    rating: rating,
+    review: review,
+  });
+  res.send(result);
+});
+// load reviews
 
 // Add services:
 app.get("/test1", async (req, res) => {
