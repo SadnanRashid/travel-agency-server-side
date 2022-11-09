@@ -33,11 +33,11 @@ app.get("/services", async (req, res) => {
   res.send(services);
 });
 // get specific services
-app.get("/services", async (req, res) => {
-  const query = {};
-  const cursor = servicesCol.find(query);
-  const services = await cursor.toArray();
-  res.send(services);
+app.get("/services/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: ObjectId(id) };
+  const specificService = await servicesCol.findOne(query);
+  res.send(specificService);
 });
 
 // Add services:
