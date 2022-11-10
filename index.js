@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 const app = express();
 app.use(cors());
 const port = process.env.PORT || 4000;
@@ -22,6 +23,36 @@ const client = new MongoClient(uri, {
 const servicesCol = client.db("services").collection("services");
 const reviewCol = client.db("services").collection("reviews");
 //
+const accessToken =
+  "af8f6856df062a6a9764bfa35d9246f3ac9a874a805e99b5ada3ffd7aa0f303d";
+// JWT:
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  const token = authHeader;
+  console.log(token);
+
+  jwt.verify(token, accessToken, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "access denied" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
+
+// jwt api
+app.get("/jsonWT/:user", (req, res) => {
+  const user = req.params.user;
+  console.log(user);
+  const token = jwt.sign({ email: user }, accessToken, { expiresIn: "1d" });
+  res.send({ token });
+});
+
+// end of jwt
 
 app.get("/", async (req, res) => {
   res.send("Programming-Hero Assignment11 Server Side");
@@ -65,7 +96,7 @@ app.delete("/delete-reviews/:id", async (req, res) => {
   const result = await reviewCol.deleteOne(query);
   res.send(result);
 });
-// load reviews
+// load reviews for services page
 app.get("/get-reviews/:id", async (req, res) => {
   const id = req.params.id;
   //find and send data
@@ -75,9 +106,14 @@ app.get("/get-reviews/:id", async (req, res) => {
   res.send(reviews);
 });
 // Load reviews based on user email
-app.get("/get-user-reviews/:email", async (req, res) => {
+app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
+  const decoded = req.decoded;
   const email = req.params.email;
-  console.log(email);
+  //check validity
+  if (decoded.email !== email) {
+    res.status(403).send({ message: "unauthorized access" });
+  }
+  // console.log(email);
   //find and send data
   let query = { email: email };
   const cursor = reviewCol.find(query);
