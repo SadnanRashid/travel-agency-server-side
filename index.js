@@ -23,8 +23,6 @@ const client = new MongoClient(uri, {
 const servicesCol = client.db("services").collection("services");
 const reviewCol = client.db("services").collection("reviews");
 //
-const accessToken =
-  "af8f6856df062a6a9764bfa35d9246f3ac9a874a805e99b5ada3ffd7aa0f303d";
 // JWT:
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
