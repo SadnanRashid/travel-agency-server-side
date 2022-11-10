@@ -86,24 +86,29 @@ app.get("/get-user-reviews/:email", async (req, res) => {
 });
 
 // Add services:
-app.get("/test1", async (req, res) => {
+app.post("/add-service", async (req, res) => {
+  const data = req.body;
+  console.log(data);
   try {
     const database = client.db("services");
     const haiku = database.collection("services");
     // create a document to insert
     const doc = {
-      name: title,
-      img: imgLink,
-      desc: description,
+      name: serviceName,
+      img: img,
+      desc: desc,
       location: location,
       duration: duration,
-      desc_1: bullet1,
-      desc_2: bullet2,
-      desc_3: bullet3,
+      price: price,
+      // desc_1: bullet1,
+      // desc_2: bullet2,
+      // desc_3: bullet3,
     };
     const result = await haiku.insertOne(doc);
     console.log(`A document was inserted with the _id: ${result.insertedId}`);
+  } catch (e) {
+    const result = e;
   } finally {
-    res.send("ok");
+    res.send(result);
   }
 });
