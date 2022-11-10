@@ -73,10 +73,9 @@ app.get("/services/:id", async (req, res) => {
   res.send(specificService);
 });
 // add review to database
-app.post("/review", async (req, res) => {
+app.post("/review", verifyJWT, async (req, res) => {
   const { email, photo, name, rating, review, serviceID, serviceName } =
     req.body;
-  console.log(serviceID);
   const result = await reviewCol.insertOne({
     email: email,
     photo: photo,
@@ -89,7 +88,7 @@ app.post("/review", async (req, res) => {
   res.send(result);
 });
 // delete review from database
-app.delete("/delete-reviews/:id", async (req, res) => {
+app.delete("/delete-reviews/:id", verifyJWT, async (req, res) => {
   const id = req.params.id;
   console.log(id);
   const query = { _id: ObjectId(id) };
@@ -109,8 +108,10 @@ app.get("/get-reviews/:id", async (req, res) => {
 app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
   const decoded = req.decoded;
   const email = req.params.email;
+  console.log(email);
   //check validity
   if (decoded.email !== email) {
+    console.log("send error");
     res.status(403).send({ message: "unauthorized access" });
   }
   // console.log(email);
@@ -119,6 +120,7 @@ app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
   const cursor = reviewCol.find(query);
   const reviews = await cursor.toArray();
   res.send(reviews);
+  console.log(reviews);
 });
 
 // Add services:
