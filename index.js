@@ -122,6 +122,21 @@ app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
   res.send(reviews);
   console.log(reviews);
 });
+// edit reviews:
+app.patch("/reviews/:id", verifyJWT, async (req, res) => {
+  const id = req.params.id;
+  const { review, rating } = req.body;
+  console.log(review, rating, id);
+  const query = { _id: ObjectId(id) };
+  const updatedDoc = {
+    $set: {
+      review: review,
+      rating: rating,
+    },
+  };
+  const result = await reviewCol.updateOne(query, updatedDoc);
+  res.send(result);
+});
 
 // Add services:
 app.post("/add-service", async (req, res) => {
