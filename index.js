@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const app = express();
+require("dotenv").config();
 app.use(cors());
 const port = process.env.PORT || 4000;
 app.use(express.json());
@@ -13,8 +14,7 @@ app.listen(port, () => {
 });
 
 // mongoDB:
-const uri =
-  "mongodb+srv://admin:12345sad@cluster0.tvyjzb3.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.tvyjzb3.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -34,7 +34,7 @@ function verifyJWT(req, res, next) {
   }
   const token = authHeader;
 
-  jwt.verify(token, accessToken, function (err, decoded) {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
     if (err) {
       return res.status(403).send({ message: "access denied" });
     }
@@ -46,7 +46,9 @@ function verifyJWT(req, res, next) {
 // jwt api
 app.get("/jsonWT/:user", (req, res) => {
   const user = req.params.user;
-  const token = jwt.sign({ email: user }, accessToken, { expiresIn: "1d" });
+  const token = jwt.sign({ email: user }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
   res.send({ token });
 });
 
@@ -99,7 +101,8 @@ app.get("/get-reviews/:id", async (req, res) => {
   let query = { serviceID: id };
   const cursor = reviewCol.find(query);
   const reviews = await cursor.toArray();
-  res.send(reviews);
+  // Reverse the array using array.reverse() function to show newest review first
+  res.send(reviews.reverse());
 });
 // Load reviews based on user email
 app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
