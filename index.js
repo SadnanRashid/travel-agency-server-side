@@ -56,6 +56,16 @@ app.post("/review", async (req, res) => {
   res.send(result);
 });
 // load reviews
+app.get("/get-reviews/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+
+  let query = { serviceID: id };
+  const cursor = reviewCol.find(query);
+  const orders = await cursor.toArray();
+  res.send(orders);
+});
+// Load reviews based on user email
 
 // Add services:
 app.get("/test1", async (req, res) => {
