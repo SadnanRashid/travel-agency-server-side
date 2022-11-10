@@ -58,14 +58,21 @@ app.post("/review", async (req, res) => {
 // load reviews
 app.get("/get-reviews/:id", async (req, res) => {
   const id = req.params.id;
-  console.log(id);
-
+  //find and send data
   let query = { serviceID: id };
   const cursor = reviewCol.find(query);
-  const orders = await cursor.toArray();
-  res.send(orders);
+  const reviews = await cursor.toArray();
+  res.send(reviews);
 });
 // Load reviews based on user email
+app.get("/get-user-reviews/:email", async (req, res) => {
+  const email = req.params.email;
+  //find and send data
+  let query = { email: email };
+  const cursor = reviewCol.find(query);
+  const reviews = await cursor.toArray();
+  res.send(reviews);
+});
 
 // Add services:
 app.get("/test1", async (req, res) => {
