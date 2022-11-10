@@ -43,7 +43,8 @@ app.get("/services/:id", async (req, res) => {
 });
 // add review to database
 app.post("/review", async (req, res) => {
-  const { email, photo, name, rating, review, serviceID } = req.body;
+  const { email, photo, name, rating, review, serviceID, serviceName } =
+    req.body;
   console.log(serviceID);
   const result = await reviewCol.insertOne({
     email: email,
@@ -52,7 +53,16 @@ app.post("/review", async (req, res) => {
     name: name,
     rating: rating,
     review: review,
+    serviceName: serviceName,
   });
+  res.send(result);
+});
+// delete review from database
+app.delete("/delete-reviews/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: ObjectId(id) };
+  const result = await reviewCol.deleteOne(query);
   res.send(result);
 });
 // load reviews
@@ -67,6 +77,7 @@ app.get("/get-reviews/:id", async (req, res) => {
 // Load reviews based on user email
 app.get("/get-user-reviews/:email", async (req, res) => {
   const email = req.params.email;
+  console.log(email);
   //find and send data
   let query = { email: email };
   const cursor = reviewCol.find(query);
