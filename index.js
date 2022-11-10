@@ -33,7 +33,6 @@ function verifyJWT(req, res, next) {
     return res.status(401).send({ message: "unauthorized access" });
   }
   const token = authHeader;
-  console.log(token);
 
   jwt.verify(token, accessToken, function (err, decoded) {
     if (err) {
@@ -47,7 +46,6 @@ function verifyJWT(req, res, next) {
 // jwt api
 app.get("/jsonWT/:user", (req, res) => {
   const user = req.params.user;
-  console.log(user);
   const token = jwt.sign({ email: user }, accessToken, { expiresIn: "1d" });
   res.send({ token });
 });
@@ -90,7 +88,6 @@ app.post("/review", verifyJWT, async (req, res) => {
 // delete review from database
 app.delete("/delete-reviews/:id", verifyJWT, async (req, res) => {
   const id = req.params.id;
-  console.log(id);
   const query = { _id: ObjectId(id) };
   const result = await reviewCol.deleteOne(query);
   res.send(result);
@@ -108,10 +105,8 @@ app.get("/get-reviews/:id", async (req, res) => {
 app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
   const decoded = req.decoded;
   const email = req.params.email;
-  console.log(email);
   //check validity
   if (decoded.email !== email) {
-    console.log("send error");
     res.status(403).send({ message: "unauthorized access" });
   }
   // console.log(email);
@@ -120,13 +115,11 @@ app.get("/get-user-reviews/:email", verifyJWT, async (req, res) => {
   const cursor = reviewCol.find(query);
   const reviews = await cursor.toArray();
   res.send(reviews);
-  console.log(reviews);
 });
 // edit reviews:
 app.patch("/reviews/:id", verifyJWT, async (req, res) => {
   const id = req.params.id;
   const { review, rating } = req.body;
-  console.log(review, rating, id);
   const query = { _id: ObjectId(id) };
   const updatedDoc = {
     $set: {
@@ -142,7 +135,6 @@ app.patch("/reviews/:id", verifyJWT, async (req, res) => {
 app.post("/add-service", async (req, res) => {
   const data = req.body;
   let result = undefined;
-  console.log(data);
   try {
     const database = client.db("services");
     const haiku = database.collection("services");
